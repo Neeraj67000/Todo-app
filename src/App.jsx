@@ -49,7 +49,7 @@ function App() {
   function markasdone(completeid) {
     const donetodo = Todos.map((todo) => {
       if (todo.myid === completeid) {
-        todo.isCompleted = true;
+        todo.isCompleted = !todo.isCompleted;
       }
       return todo;
     });
@@ -122,7 +122,7 @@ function App() {
                       <Checkbox
                         edge="end"
                         onChange={() => markasdone(todo.myid)}
-                        checked=""
+                        checked={todo.isCompleted ? "checked" : ""}
                         inputProps=""
                       />
                       <IconButton aria-label="delete" size="large">
