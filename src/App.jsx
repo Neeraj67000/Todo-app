@@ -15,83 +15,25 @@ import { ToastContainer, toast } from "react-toastify";
 
 function App() {
   const [form, setform] = useState({ task: "", isCompleted: false });
-  const [Todos, setTodos] = useState([]);
+  const [todos, settodos] = useState([]);
 
   useEffect(() => {
-    function fetchtodos() {
+    function fetchtTodos() {
       if (localStorage.getItem("todo")) {
-        setTodos(JSON.parse(localStorage.getItem("todo")));
+        settodos(JSON.parse(localStorage.getItem("todo")));
       }
     }
-    fetchtodos();
+    fetchtTodos();
   }, []);
 
-  function handleform(event) {
+  function handleForm(event) {
     setform({
       ...form,
       [event.target.name]: event.target.value,
     });
   }
-  function handleKeyDown(event) {
-    if (event.key === "Enter") {
-      const newtodo = { ...form, myid: uuidv4() };
-      const updatedtodos = [...Todos, newtodo];
-      setTodos(updatedtodos);
-      localStorage.setItem("todo", JSON.stringify(updatedtodos));
-      setform({
-        ...form,
-        task: "",
-      });
-      toast.info("Your todo is saved", {
-        position: "bottom-left",
-        autoClose: 2000,
-        hideProgressBar: false,
-        closeOnClick: false,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "dark",
-      });
-    }
-  }
-  function savetodo() {
-    const newtodo = { ...form, myid: uuidv4() };
-    if (newtodo.task) {
-      const updatedtodos = [...Todos, newtodo];
-      setTodos(updatedtodos);
-      localStorage.setItem("todo", JSON.stringify(updatedtodos));
-      setform({
-        ...form,
-        task: "",
-      });
-      toast.info("Your todo is saved", {
-        position: "bottom-left",
-        autoClose: 2000,
-        hideProgressBar: false,
-        closeOnClick: false,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "dark",
-      });
-    } else {
-      toast.warn("Please add some value", {
-        position: "bottom-left",
-        autoClose: 2000,
-        hideProgressBar: false,
-        closeOnClick: false,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "dark",
-      });
-    }
-  }
-  function deletetodo(myid) {
-    const deletedarray = Todos.filter((todo) => todo.myid !== myid);
-    setTodos(deletedarray);
-    localStorage.setItem("todo", JSON.stringify(deletedarray));
-    toast.error("Todo is deleted", {
+  function showToast(type, text) {
+    toast[type](text, {
       position: "bottom-left",
       autoClose: 2000,
       hideProgressBar: false,
@@ -102,38 +44,63 @@ function App() {
       theme: "dark",
     });
   }
-  function markasdone(completeid) {
-    const donetodo = Todos.map((todo) => {
+  function handleKeyDown(event) {
+    if (event.key === "Enter") {
+      const newtodo = { ...form, myid: uuidv4() };
+      if (newtodo.task) {
+        const updatedtodos = [...todos, newtodo];
+        settodos(updatedtodos);
+        localStorage.setItem("todo", JSON.stringify(updatedtodos));
+        setform({
+          ...form,
+          task: "",
+        });
+        showToast("info", "Your todo is saved");
+      } else {
+        showToast("warn", "Please add some value");
+      }
+    }
+  }
+
+  function saveTodo() {
+    const newtodo = { ...form, myid: uuidv4() };
+
+    if (!newtodo.task) {
+      showToast("warn", "Please add some value");
+      return;
+    }
+
+    const updatedtodos = [...todos, newtodo];
+
+    settodos(updatedtodos);
+    localStorage.setItem("todo", JSON.stringify(updatedtodos));
+    setform({
+      ...form,
+      task: "",
+    });
+    showToast("info", "Your todo is saved");
+  }
+
+  function deleteTodo(myid) {
+    const deletedarray = todos.filter((todo) => todo.myid !== myid);
+    settodos(deletedarray);
+    localStorage.setItem("todo", JSON.stringify(deletedarray));
+    showToast("error", "Todo is deleted");
+  }
+  function markAsDone(completeid) {
+    const donetodo = todos.map((todo) => {
       if (todo.myid === completeid) {
         if (todo.isCompleted === false) {
           todo.isCompleted = true;
-          toast.success("Well Done", {
-            position: "bottom-left",
-            autoClose: 3000,
-            hideProgressBar: false,
-            closeOnClick: false,
-            pauseOnHover: true,
-            draggable: true,
-            progress: undefined,
-            theme: "dark",
-          });
+          showToast("success", "Well Done");
         } else {
           todo.isCompleted = false;
-          toast("Something Left", {
-            position: "bottom-left",
-            autoClose: 3000,
-            hideProgressBar: false,
-            closeOnClick: false,
-            pauseOnHover: true,
-            draggable: true,
-            progress: undefined,
-            theme: "dark",
-          });
+          showToast("warn", "Something Left");
         }
       }
       return todo;
     });
-    setTodos(donetodo);
+    settodos(donetodo);
     localStorage.setItem("todo", JSON.stringify(donetodo));
   }
   return (
@@ -162,7 +129,7 @@ function App() {
         }}
       >
         <TextField
-          onChange={handleform}
+          onChange={handleForm}
           onKeyDown={handleKeyDown}
           name="task"
           value={form.task}
@@ -171,7 +138,7 @@ function App() {
           size="small"
           label="My Task"
         />
-        <Button onClick={savetodo} variant="outlined" size="medium">
+        <Button onClick={saveTodo} variant="outlined" size="medium">
           Add
         </Button>
       </Box>
@@ -184,7 +151,7 @@ function App() {
           alignItems: "center",
         }}
       >
-        {Todos.length == 0 && (
+        {todos.length == 0 && (
           <Box
             sx={(theme) => ({
               p: 1,
@@ -197,8 +164,8 @@ function App() {
             </Typography>
           </Box>
         )}
-        {Todos.length != 0 &&
-          Todos.map((todo) => {
+        {todos.length != 0 &&
+          todos.map((todo) => {
             return (
               <List
                 key={todo.myid}
@@ -214,14 +181,14 @@ function App() {
                     <>
                       <Checkbox
                         edge="end"
-                        onChange={() => markasdone(todo.myid)}
+                        onChange={() => markAsDone(todo.myid)}
                         checked={todo.isCompleted ? "checked" : ""}
                         inputProps=""
                       />
                       <IconButton aria-label="delete" size="large">
                         <DeleteIcon
                           fontSize="inherit"
-                          onClick={() => deletetodo(todo.myid)}
+                          onClick={() => deleteTodo(todo.myid)}
                         />
                       </IconButton>
                     </>
