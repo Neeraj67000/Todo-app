@@ -42,6 +42,16 @@ function App() {
         ...form,
         task: "",
       });
+      toast.info("Your todo is saved", {
+        position: "bottom-left",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: false,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "dark",
+      });
     }
   }
   function savetodo() {
