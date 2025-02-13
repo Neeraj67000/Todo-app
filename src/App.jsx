@@ -11,6 +11,7 @@ import ListItemButton from "@mui/material/ListItemButton";
 import Checkbox from "@mui/material/Checkbox";
 import IconButton from "@mui/material/IconButton";
 import DeleteIcon from "@mui/icons-material/Delete";
+import { ToastContainer, toast } from "react-toastify";
 
 function App() {
   const [form, setform] = useState({ task: "", isCompleted: false });
@@ -31,25 +32,94 @@ function App() {
       [event.target.name]: event.target.value,
     });
   }
+  function handleKeyDown(event) {
+    if (event.key === "Enter") {
+      const newtodo = { ...form, myid: uuidv4() };
+      const updatedtodos = [...Todos, newtodo];
+      setTodos(updatedtodos);
+      localStorage.setItem("todo", JSON.stringify(updatedtodos));
+      setform({
+        ...form,
+        task: "",
+      });
+    }
+  }
   function savetodo() {
     const newtodo = { ...form, myid: uuidv4() };
-    const updatedtodos = [...Todos, newtodo];
-    setTodos(updatedtodos);
-    localStorage.setItem("todo", JSON.stringify(updatedtodos));
-    setform({
-      ...form,
-      task: "",
-    });
+    if (newtodo.task) {
+      const updatedtodos = [...Todos, newtodo];
+      setTodos(updatedtodos);
+      localStorage.setItem("todo", JSON.stringify(updatedtodos));
+      setform({
+        ...form,
+        task: "",
+      });
+      toast.info("Your todo is saved", {
+        position: "bottom-left",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: false,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "dark",
+      });
+    } else {
+      toast.warn("Please add some value", {
+        position: "bottom-left",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: false,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "dark",
+      });
+    }
   }
   function deletetodo(myid) {
     const deletedarray = Todos.filter((todo) => todo.myid !== myid);
     setTodos(deletedarray);
     localStorage.setItem("todo", JSON.stringify(deletedarray));
+    toast.error("Todo is deleted", {
+      position: "bottom-left",
+      autoClose: 2000,
+      hideProgressBar: false,
+      closeOnClick: false,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "dark",
+    });
   }
   function markasdone(completeid) {
     const donetodo = Todos.map((todo) => {
       if (todo.myid === completeid) {
-        todo.isCompleted = !todo.isCompleted;
+        if (todo.isCompleted === false) {
+          todo.isCompleted = true;
+          toast.success("Well Done", {
+            position: "bottom-left",
+            autoClose: 3000,
+            hideProgressBar: false,
+            closeOnClick: false,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "dark",
+          });
+        } else {
+          todo.isCompleted = false;
+          toast("Something Left", {
+            position: "bottom-left",
+            autoClose: 3000,
+            hideProgressBar: false,
+            closeOnClick: false,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "dark",
+          });
+        }
       }
       return todo;
     });
@@ -58,6 +128,18 @@ function App() {
   }
   return (
     <>
+      <ToastContainer
+        position="bottom-left"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick={false}
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="dark"
+      />
       <Typography variant="h2" gutterBottom>
         Neeraj's Todos
       </Typography>
@@ -71,6 +153,7 @@ function App() {
       >
         <TextField
           onChange={handleform}
+          onKeyDown={handleKeyDown}
           name="task"
           value={form.task}
           id="outlined-basic"
