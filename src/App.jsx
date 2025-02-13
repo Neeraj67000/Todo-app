@@ -12,6 +12,7 @@ import Checkbox from "@mui/material/Checkbox";
 import IconButton from "@mui/material/IconButton";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { ToastContainer, toast } from "react-toastify";
+import EditIcon from "@mui/icons-material/Edit";
 
 function App() {
   const [form, setform] = useState({ task: "", isCompleted: false });
@@ -103,6 +104,19 @@ function App() {
     settodos(donetodo);
     localStorage.setItem("todo", JSON.stringify(donetodo));
   }
+
+  function handleEdit(myid) {
+    let editArray = todos.filter((todo) => todo.myid === myid);
+    let newform = editArray.map((item) => {
+      if (item.myid === myid) {
+        return item.task;
+      }
+    });
+    setform({ ...form, task: newform[0] });
+    const deletedarray = todos.filter((todo) => todo.myid !== myid);
+    settodos(deletedarray);
+    localStorage.setItem("todo", JSON.stringify(deletedarray));
+  }
   return (
     <>
       <ToastContainer
@@ -179,6 +193,13 @@ function App() {
                 <ListItem
                   secondaryAction={
                     <>
+                      <IconButton aria-label="delete" size="large">
+                        <EditIcon
+                          fontSize="inherit"
+                          onClick={() => handleEdit(todo.myid)}
+                        />
+                      </IconButton>
+
                       <Checkbox
                         edge="end"
                         onChange={() => markAsDone(todo.myid)}
