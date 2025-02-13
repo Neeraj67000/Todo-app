@@ -106,13 +106,8 @@ function App() {
   }
 
   function handleEdit(myid) {
-    let editArray = todos.filter((todo) => todo.myid === myid);
-    let newform = editArray.map((item) => {
-      if (item.myid === myid) {
-        return item.task;
-      }
-    });
-    setform({ ...form, task: newform[0] });
+    let editArray = todos.filter((todo) => todo.myid === myid)[0];  
+    setform({ ...form, task: editArray.task });
     const deletedarray = todos.filter((todo) => todo.myid !== myid);
     settodos(deletedarray);
     localStorage.setItem("todo", JSON.stringify(deletedarray));
